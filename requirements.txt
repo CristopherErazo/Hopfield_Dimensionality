@@ -1,0 +1,10 @@
+pytest
+PyYAML
+numba
+line_profiler
+numpy
+jax
+tqdm
+matplotlib
+setuptools
+scipy

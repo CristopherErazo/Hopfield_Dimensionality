@@ -1,0 +1,17 @@
+__pycache__
+.python-version
+.venv
+.env
+.vscode
+env
+.dat
+log/
+logs/
+*.egg-info
+*~
+data/
+plots/
+*.so
+*.pyd
+build/
+src/configurations/

@@ -1,0 +1,26 @@
+# Choosing a build backend: 
+requires = ["setuptools"] 
+build-backend = "setuptools.build_meta" 
+
+[project] 
+name = "hopfield_dimension" 
+version = "0.0.1" 
+description = "A package for estimating the intrinsic dimension of the hopfield model"
+readme = "README.md" 
+requires-python = ">=3.9" 
+license = { file = "LICENSE" } 
+authors = [{ name = "Cristopher Erazo", email = "cerazova@sissa.it" }] 
+dynamic = ["dependencies"] 
+
+[tool.setuptools.packages.find] 
+where = ["src"] 
+exclude = ["scripts", "tests", "shell", "experiments"] 
+
+[tool.setuptools.dynamic] 
+dependencies = { file = ["requirements.txt"] } 
+
+[project.optional-dependencies] 
+test = ["pytest"]
+
+[tool.setuptools.package-data]
+"spin_sampler" = ["*.so", "*.pyd"]
