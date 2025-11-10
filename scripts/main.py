@@ -2,7 +2,7 @@ import argparse
 # import numpy as np
 # import jax.numpy as jnp
 from spin_sampler import Sampler , define_hopfield_model , initialize_spins
-from binary_dimension import compute_histogram_jax, select_range, highest_prob_range
+from binary_dimension import compute_histogram_jax, select_range
 from binary_dimension.utils import initial_gauss
 from binary_dimension.optimization import DKL_Optimizer
 from binary_dimension.distance_models import LinearDistanceModel
