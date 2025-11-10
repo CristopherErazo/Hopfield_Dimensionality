@@ -56,6 +56,7 @@ class DKL_Optimizer:
     def optimize(self, theta_init, error = 1e-7, max_iter = 20, lr = 1.0):
         """
         Optimize parameters to minimize D_KL using iterative Newton's method.
+
         Parameters
         ----------
         theta_init : array-like
@@ -66,6 +67,7 @@ class DKL_Optimizer:
             Maximum number of iterations to perform.
         lr : float
             Learning rate for the update steps.
+            
         Returns
         -------
         theta_opt : ndarray

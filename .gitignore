@@ -14,4 +14,4 @@ plots/
 *.so
 *.pyd
 build/
-src/configurations/
+# src/configurations/
