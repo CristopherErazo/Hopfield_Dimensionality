@@ -8,7 +8,7 @@ import multiprocessing
 
 
 if __name__ == "__main__":
-    print(f'Starting job on host: {os.uname().nodename}')
+    print(f'-------Starting job on host: {os.uname().nodename}-----')
     print("Backend:", jax.default_backend())
     print("Devices:", jax.devices())
     print("OMP_NUM_THREADS =", os.environ.get("OMP_NUM_THREADS"))
@@ -29,7 +29,7 @@ if __name__ == "__main__":
     parser.add_argument('--h', type=float, default=0.9, help='Initial magnetization along the reference pattern')
     parser.add_argument('--burnin', type=int, default=800, help='Number of burn-in samples to discard')
     args = parser.parse_args()
-    print(args)
+    # print(args)
     N = args.N
     T = args.T
     alpha = args.alpha
@@ -49,12 +49,12 @@ if __name__ == "__main__":
     names_fixed = ['N_samples','dt_samples','burnin','alpha','h','rnd_ord','mode']
     names_variable = ['T','N']
 
-
+    t0 = time.time()
     # Define the couplings of Hopfield model and initialize spins
     p = int(alpha * N)
     J , patterns = define_hopfield_model(N,p,N_walkers,mode,backend,seed)
     print(f'Defined Hopfield model with seed = {seed}, N={N}, p={p}, alpha={alpha}')
-    print(f'{J.shape = }, {patterns.shape = }.')
+    # print(f'{J.shape = }, {patterns.shape = }.')
     initial_state = initialize_spins(N,N_walkers,mode,backend,seed=seed,config='magnetized',ref_spin=patterns[:,0],m0=h)
 
     # Create a sampler instance and sample
@@ -65,11 +65,11 @@ if __name__ == "__main__":
     sampler.run_gibbs(final,N_samples,dt_samples,seed=seed,store=True,progress=progress);
     S = sampler.get_chain()
     sampler.reset_chain() # Clean up the sampler
-    print(f'Chain shape: {S.shape}') # (N_samples,N)
+    # print(f'Chain shape: {S.shape}') # (N_samples,N)
 
     # Compute histogram of Hamming distances using JAX 
     r, P = compute_histogram_jax(S)
-    print(f'Hamming distances r: {r.shape}, probabilities P: {P.shape}')
+    # print(f'Hamming distances r: {r.shape}, probabilities P: {P.shape}')
     params = make_params_dict(names_fixed,names_variable)
     file_path , _ , _ = make_data_paths('histograms', experiment_name= 'scaling_exponents', params=params,base_dir='./data',ext='txt')
         
@@ -78,3 +78,5 @@ if __name__ == "__main__":
     file.write(' '.join(map(str,r))+'\n')
     file.write(' '.join(map(str,P))+'\n')
     file.close()
+    dt = time.time() - t0
+    print(f'------TIME TAKEN  = {dt/60 :.5} min = {dt/3600 :.3} hours-------')
