@@ -24,6 +24,8 @@ def analize_histograms(N, data_hist, a_min, a_max, z_threshold = 2, kl_perc = 80
         Z-score threshold for filtering outliers based on BID/N.
     kl_perc : float
         Percentile threshold for filtering based on KL divergence.
+    Nit : int
+        Number of initializations for optimization.
 
     Returns
     -------
@@ -101,9 +103,9 @@ def analize_histograms(N, data_hist, a_min, a_max, z_threshold = 2, kl_perc = 80
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Process histogram scaling data.')
-    parser.add_argument('--a_min', type=float, default=0.0, help='Minimum value for range selection.')
+    parser.add_argument('--a_min', type=float, default=1e-3, help='Minimum value for range selection.')
     parser.add_argument('--a_max', type=float, default=0.3, help='Maximum value for range selection.')
-    parser.add_argument('--z_threshold', type=float, default=2.0, help='Z-score threshold for filtering outliers based on BID/N.')
+    parser.add_argument('--z_threshold', type=float, default=3, help='Z-score threshold for filtering outliers based on BID/N.')
     parser.add_argument('--kl_perc', type=float, default=80.0, help='Percentile threshold for filtering based on KL divergence.')
     args = parser.parse_args()
 
@@ -126,10 +128,12 @@ if __name__ == "__main__":
     mode = 'single_chain'
 
     # Parameters Lists
-    # temps = [0.6,0.9,1.2,1.5]
+    # temps = [0.56, 0.575, 0.59, 1.19, 1.21]
+    # temps = np.concatenate((temps, [0.56, 0.575, 0.59, 1.19, 1.21]))
     # Ns = [1024,2048,4096]
     temps = np.linspace(0.4,1.6,25)
-    Ns = np.logspace(9,15,7,base=2).astype(int)
+    temps = np.concatenate((temps, [0.56, 0.575, 0.59, 1.19, 1.21]))
+    Ns = np.logspace(9,15,7,base=2).astype(int)[1:-1]
 
     # Parameters to save
     names_fixed = ['N_samples','dt_samples','burnin','alpha','h','rnd_ord','mode']
@@ -141,10 +145,17 @@ if __name__ == "__main__":
             print('-----------\n',f'Processing N={N}, T={T}...')
             params = make_params_dict(names_fixed,names_variable)
             data_hist = load_histogram_data('histograms', experiment_name= 'scaling_exponents', params=params,base_dir='./data',ext='txt')
+            print(f'Loaded {len(data_hist)} histograms.')
             bid_pars, data_hist_filtered , sigmas = analize_histograms(N, data_hist, a_min, a_max, z_threshold, kl_perc)
             print(f'len(Original histograms): {len(data_hist)} | len(Filtered histograms): {len(data_hist_filtered)}')
             # Save the filtered results
             params_save = make_params_dict(name_fixed_save,names_variable)
-            save_data(data_hist_filtered,'histograms',experiment_name= 'scaling_exponents_filtered', params=params_save,base_dir='./data',show=False)
+            save_data(data_hist_filtered,'hst',experiment_name= 'scaling_exponents_filtered', params=params_save,base_dir='./data',show=False)
             dic = {'bid_pars': bid_pars , 'sigmas': sigmas}
-            save_data(dic,'bid_parms',experiment_name= 'scaling_exponents_filtered', params=params_save,base_dir='./data',show=False)
+            save_data(dic,'par',experiment_name= 'scaling_exponents_filtered', params=params_save,base_dir='./data',show=False)
+
+
+#              Processing N=2048, T=0.56...
+# Maximum KL before filtering: -0.39649203314378456
+# Maximum KL after filtering: -1.3850485690566163
+# len(Original histograms): 25 | len(Filtered histograms): 20
