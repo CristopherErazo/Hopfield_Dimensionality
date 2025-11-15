@@ -17,7 +17,7 @@ def dict_to_name(dic, sep='_', key_value_sep=''):
     items = sorted(dic.items())  # sort for reproducibility
     return sep.join(f"{k}{key_value_sep}{sanitize(v)}" for k, v in items)
 
-def make_paths_general(base_dir,subfolder_names, file_name ,dic = None ,ext=None):
+def make_paths_general(base_dir,subfolder_names, file_name ,dic = None ,ext=None , normalize=True):
     """
     Create a consistent folder structure for experiment results.
     """
@@ -39,15 +39,14 @@ def make_paths_general(base_dir,subfolder_names, file_name ,dic = None ,ext=None
 
     file_path = os.path.join(dir_path,filename)
     # normalize before checking or opening
-    # file_path = os.path.normpath(file_path)
-    # dir_path = os.path.normpath(dir_path)
-    # normalize to absolute canonical paths (one-line patch)
-    file_path, dir_path = map(lambda p: os.path.abspath(os.path.normpath(p)), (file_path, dir_path))
+    if normalize:
+        file_path, dir_path = map(lambda p: os.path.abspath(os.path.normpath(p)), (file_path, dir_path))
+
     # Ensure the directory exists
     os.makedirs(dir_path, exist_ok=True)
     return file_path , filename, dir_path
 
-def make_data_paths(file_name, experiment_name= '', params=None,ext='pkl',base_dir='./data'):
+def make_data_paths(file_name, experiment_name= '', params=None,ext='pkl',base_dir='./data',normalize=True):
 
     if params is None or 'fixed' not in params.keys() :
         subfolder_names = experiment_name
@@ -56,7 +55,7 @@ def make_data_paths(file_name, experiment_name= '', params=None,ext='pkl',base_d
         subfolder_names = [experiment_name,dict_to_name(params['fixed'])]
         params_file = params['variable']
 
-    file_path, filename , dir_path = make_paths_general(base_dir,subfolder_names, file_name ,params_file ,ext=ext)
+    file_path, filename , dir_path = make_paths_general(base_dir,subfolder_names, file_name ,params_file ,ext=ext,normalize=normalize)
 
     return file_path , filename, dir_path
 
@@ -82,9 +81,9 @@ def save_fig(fig, file_name, params=None, show = True, ext='png',base_dir="../pl
 
 
 
-def save_data(data, file_name, experiment_name= '', params=None,show=True,ext='pkl',base_dir='./data'):
+def save_data(data, file_name, experiment_name= '', params=None,show=True,ext='pkl',base_dir='./data',normalize=True):
 
-    file_path, filename , dir_path = make_data_paths(file_name, experiment_name, params,ext,base_dir)
+    file_path, filename , dir_path = make_data_paths(file_name, experiment_name, params,ext,base_dir,normalize=normalize)
     
     if ext == 'txt':
         if not isinstance(data,np.ndarray):
@@ -112,7 +111,7 @@ def save_data(data, file_name, experiment_name= '', params=None,show=True,ext='p
 
 
 
-def load_data(file_name, experiment_name= '', params=None,show=True,ext='pkl',base_dir='../data'):
+def load_data(file_name, experiment_name= '', params=None,show=True,ext='pkl',base_dir='../data',normalize=True):
     
     if params is None or 'fixed' not in params.keys() :
         subfolder_names = experiment_name
@@ -121,7 +120,7 @@ def load_data(file_name, experiment_name= '', params=None,show=True,ext='pkl',ba
         subfolder_names = [experiment_name,dict_to_name(params['fixed'])]
         params_file = params['variable']
 
-    file_path, filename , dir_path = make_paths_general(base_dir,subfolder_names, file_name ,params_file ,ext=ext)
+    file_path, filename , dir_path = make_paths_general(base_dir,subfolder_names, file_name ,params_file ,ext=ext,normalize=normalize)
 
     if ext == 'txt':
         data = np.loadtxt(filename)
@@ -141,7 +140,7 @@ def load_data(file_name, experiment_name= '', params=None,show=True,ext='pkl',ba
     
     return data
 
-def load_histogram_data(file_name, experiment_name= '', params=None,show=True,ext='txt',base_dir='./data'):
+def load_histogram_data(file_name, experiment_name= '', params=None,show=True,ext='txt',base_dir='./data',normalize=True):
     """
     Load histogram data from file.
     Parameters:
@@ -164,7 +163,7 @@ def load_histogram_data(file_name, experiment_name= '', params=None,show=True,ex
         subfolder_names = [experiment_name,dict_to_name(params['fixed'])]
         params_file = params['variable']
 
-    file_path, filename , dir_path = make_paths_general(base_dir,subfolder_names, file_name ,params_file ,ext=ext)
+    file_path, filename , dir_path = make_paths_general(base_dir,subfolder_names, file_name ,params_file ,ext=ext,normalize=normalize)
 
     
     # Load all the lines from the file 
@@ -219,13 +218,17 @@ def download_cluster_data(server_name,path_cluster,path_local,filename_cluster,f
         filename_local = filename_cluster
 
     # Construct paths
-    cluster = os.path.join(server,path_cluster ,filename_cluster)
+    # cluster = os.path.join(server, path_cluster ,filename_cluster)
+    cluster = f'{server}{os.path.join(path_cluster ,filename_cluster)}'
     local = os.path.join(path_local,filename_local)
 
+    #Change \ to / for cluster paths
+    cluster = cluster.replace('\\','/')
+
     # Check if file exist locally
-    if os.path.exists(local):
-        print(f'File already exist: {local}')
-        return
+    # if os.path.exists(local):
+    #     print(f'File already exist: {local}')
+    #     return
 
     # Run scp command to copy from cluster
     result = subprocess.run(['scp', cluster, local], capture_output=True, text=True)
