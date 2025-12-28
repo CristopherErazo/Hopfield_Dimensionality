@@ -12,26 +12,27 @@
 mkdir -p ./logs
 echo $(pwd)
 # Define arrays of parameters
-Ns=(32768)
-Ts=(0.56 0.575 0.59 1.19 1.21)
+h=0.9
+alphas=(0.04)
+Ts=($(seq 0.05 0.05 1.60))
 
 # Timestamp for the launch
 echo "Launcher started at $(date)"
 echo "Submitting jobs for all combinations of N and T"
 
 # Loop over all combinations
-for N in "${Ns[@]}"; do
+for alpha in "${alphas[@]}"; do
     for T in "${Ts[@]}"; do
         # Construct a unique job name and log files
-        JOB_NAME="N${N}_T${T}"
-        OUT_LOG="./logs/job_${JOB_NAME}_%j.out"
-        ERR_LOG="./logs/job_${JOB_NAME}_%j.err"
+        JOB_NAME="alpha${alpha}_T${T}_h${h}"
+        OUT_LOG="./logs/job_${JOB_NAME}.out"
+        ERR_LOG="./logs/job_${JOB_NAME}.err"
 
         echo "Submitting job for N=$N T=$T at $(date)"
         sbatch --job-name="$JOB_NAME" \
                --output="$OUT_LOG" \
                --error="$ERR_LOG" \
-               ./shell/launch_job.sh "$N" "$T"
+               ./shell/launch_job.sh "$alpha" "$T" "$h"
 
         # Small delay to avoid overwhelming the scheduler
         sleep 0.01
