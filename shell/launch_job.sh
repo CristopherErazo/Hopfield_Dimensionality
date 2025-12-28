@@ -41,7 +41,7 @@ N_samples=10000
 progress=False
 
 # Define variable parameters
-Nw=15
+Nw=30
 
 start_time=$(date +%s)
 echo "Starting job $SLURM_JOB_ID at $(date)"

@@ -12,7 +12,7 @@
 mkdir -p ./logs
 echo $(pwd)
 # Define arrays of parameters
-Ns=(16384 32768)
+Ns=(32768)
 Ts=(0.56 0.575 0.59 1.19 1.21)
 
 # Timestamp for the launch
