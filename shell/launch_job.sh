@@ -4,7 +4,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=40
 #SBATCH --time=12:00:00
-#SBATCH --mem=35G
+#SBATCH --mem=20G
 #SBATCH --partition=regular1,regular2
 # SBATCH --qos=fastlane # for debugging
 
@@ -33,7 +33,7 @@ echo "  SLURM_JOB_CPUS_PER_NODE = $SLURM_JOB_CPUS_PER_NODE"
 # Define parsed parameters
 alpha=$1
 T=$2
-h=$3
+
 
 # Define fixed parameters
 N=1024
@@ -42,7 +42,7 @@ burnin=1500
 progress=False
 
 # Define variable parameters
-Nw=30
+Nw=8
 
 start_time=$(date +%s)
 echo "Starting job $SLURM_JOB_ID at $(date)"
@@ -56,7 +56,7 @@ for h in 0.0 0.9; do
 
     seq 1 $Nw | parallel -j $JOBS '
     echo "=== Running iteration {} for job $SLURM_JOB_ID ===" >> '"$log_file"'
-    python -u ./scripts/run_scaling.py --N $N --T $T --alpha $alpha --h $h \
+    python -u ./scripts/run_cuts.py --N $N --T $T --alpha $alpha --h $h \
         --N_samples $N_samples --progress $progress \
         --burnin $burnin --iteration {} \
         >> '"$log_file"' 2>&1

@@ -218,7 +218,7 @@ def initialize_spins(N,N_walkers = 1, mode = 'single_chain', backend = 'numpy', 
         m0 = np.array(m0)
         if len(m0) != N_walkers:
             raise ValueError(f"m0 must be a float in (0,1) or an array of shape ({N_walkers},)")
-        if np.any(m0 <= 0) or np.any(m0 >= 1):
+        if np.any(m0 < 0) or np.any(m0 > 1):
             raise ValueError("All elements of m0 must be in the interval (0,1)")
         
 

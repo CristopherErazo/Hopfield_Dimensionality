@@ -31,7 +31,7 @@ if __name__ == "__main__":
     parser.add_argument('--iteration', type=int, default=0, help='Iteration index for repeated runs')
 
     args = parser.parse_args()
-    # print(args)
+    print(args)
     N = args.N
     T = args.T
     alpha = args.alpha
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     sampler.run_gibbs(final,N_samples,dt_samples,seed=seed,store=True,progress=progress);
     S = sampler.get_chain()
     sampler.reset_chain() # Clean up the sampler
-    # print(f'Chain shape: {S.shape}') # (N_samples,N)
+    print(f'Chain shape: {S.shape}') # (N_samples,N)
 
     params = make_params_dict(names_fixed,names_variable)
     file_path , _ , _ = make_data_paths('spins', experiment_name= 'cut_in_parameters', params=params,base_dir='./data',ext=None)
