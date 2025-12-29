@@ -33,6 +33,7 @@ echo "  SLURM_JOB_CPUS_PER_NODE = $SLURM_JOB_CPUS_PER_NODE"
 # Define parsed parameters
 alpha=$1
 T=$2
+h=$3
 
 # Define fixed parameters
 N=1024

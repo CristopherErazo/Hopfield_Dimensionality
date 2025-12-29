@@ -7,9 +7,6 @@ import os
 import multiprocessing
 
 
-
-
-
 if __name__ == "__main__":
     print(f'-------Starting job on host: {os.uname().nodename}-----')
     print("Backend:", jax.default_backend())
