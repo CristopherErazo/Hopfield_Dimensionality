@@ -70,7 +70,8 @@ if __name__ == "__main__":
 
 
                 # Test for unimodality in the data along the firts dimension 
-                q = x_filtered[:,0]
+                
+		q = x_filtered[:,2]
                 dip, p_value = diptest(q)
                 print(f'Dip test result: dip={dip}, p-value={p_value}')
                 if p_value > 0.05:
@@ -85,7 +86,7 @@ if __name__ == "__main__":
                     majority_label = np.argmax(counts)
                     x_majority = x_filtered[labels == majority_label]
                     print(f'Multimodal Data: selected majority component with {len(x_majority)} points out of {len(x_filtered)}')
-                
+                # x_majority = x_filtered
                 # Check if there is variation across realizations (w) and filter out outliers based on z-score
                 th0 = x_majority[:,2]/N
                 std_bid = np.std(th0)

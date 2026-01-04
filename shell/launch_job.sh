@@ -41,7 +41,7 @@ burnin=1500
 progress=False
 
 # Define variable parameters
-Nw=40
+Nw=60
 
 start_time=$(date +%s)
 echo "Starting job $SLURM_JOB_ID at $(date)"
