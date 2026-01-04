@@ -10,6 +10,7 @@ import jax
 import jax.numpy as jnp
 import os
 import multiprocessing
+import numpy as np
 
 
 def order_params_jax(patterns, S):
@@ -23,6 +24,13 @@ def order_params_jax(patterns, S):
     m = 1 / N * av_s @ patterns
     m = jnp.sort(jnp.abs(m))[::-1]
     return m, q
+
+def fixed_point_flags(r,P,threshold=0.75): 
+    is_fixed_point = False
+    fit_possible = True
+    if r[np.argmax(P)] < 5 : is_fixed_point = True
+    if r[0] == 0 and P[0]> threshold: fit_possible=False
+    return is_fixed_point , fit_possible
 
 
 
@@ -95,12 +103,27 @@ def main():
     
     # Compute Histogram of Hamming distances and dimensionality
     r , P = compute_histogram_jax(S)
-    rx , Px = select_range(r,P,0,0.3)
 
-    theta_init = initial_gauss(r,P)
-    distance_model = LinearDistanceModel()
-    Dkl_optimizer = DKL_Optimizer(rx,Px, distance_model)
-    theta_opt , log_DKL , Nit = Dkl_optimizer.optimize(theta_init)
+    is_fixed_point , fit_possible = fixed_point_flags(r,P)
+ 
+    if is_fixed_point: #Potential fixed point
+        if fit_possible: #Try to fit
+            theta_init = initial_gauss(r,P)
+            distance_model = LinearDistanceModel()
+            Dkl_optimizer = DKL_Optimizer(r,P, distance_model)
+            theta_opt , log_DKL , Nit = Dkl_optimizer.optimize(theta_init)
+            
+        else: #No fit possible, set fix point values
+            theta_opt = np.array([0. , 0.])
+            log_DKL = -50
+            Nit = 1
+    else: #Not a fixed point, perform cut and fit only on the left region
+
+        rx , Px = select_range(r,P,0,0.3)
+        theta_init = initial_gauss(r,P)
+        distance_model = LinearDistanceModel()
+        Dkl_optimizer = DKL_Optimizer(rx,Px, distance_model)
+        theta_opt , log_DKL , Nit = Dkl_optimizer.optimize(theta_init)
 
     # Results and save
     results = [m,q,*theta_opt,log_DKL,Nit]
