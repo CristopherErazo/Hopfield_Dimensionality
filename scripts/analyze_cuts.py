@@ -15,6 +15,7 @@ if __name__ == "__main__":
     parser.add_argument('--burnin', type=int, default=2000, help='Number of burn-in steps')
     parser.add_argument('--perc', type=float, default=80.0, help='Percentile for Dkl cut')
     parser.add_argument('--z_th', type=float, default=2.0, help='Z-score threshold for bid cut')
+    parser.add_argument('--test_modes',type=str, default='True', help='Whether to test for multimodality')
 
     args = parser.parse_args()
     print(args)
@@ -24,6 +25,7 @@ if __name__ == "__main__":
     burnin = args.burnin
     perc = args.perc
     z_th = args.z_th
+    test_modes = args.test_modes.lower() in ('true', '1', 't')
 
     h_values = [0.0,0.9]
     T_values = np.linspace(0.1,1.6,31)
@@ -71,21 +73,25 @@ if __name__ == "__main__":
 
                 # Test for unimodality in the data along the firts dimension 
                 
-		q = x_filtered[:,2]
-                dip, p_value = diptest(q)
-                print(f'Dip test result: dip={dip}, p-value={p_value}')
-                if p_value > 0.05:
-                    print('Unimodal Data')
-                    x_majority = x_filtered
+                if test_modes:
+                    q = x_filtered[:,2]
+                    dip, p_value = diptest(q)
+                    print(f'Dip test result: dip={dip}, p-value={p_value}')
+                    if p_value > 0.05:
+                        print('Unimodal Data')
+                        x_majority = x_filtered
+                    else:
+                        gmm = GaussianMixture(n_components=2, random_state=0)
+                        gmm.fit(q.reshape(-1, 1))
+                        labels = gmm.predict(q.reshape(-1, 1))
+                        counts = np.bincount(labels)
+                        print(f'Component counts: {counts}')
+                        majority_label = np.argmax(counts)
+                        x_majority = x_filtered[labels == majority_label]
                 else:
-                    gmm = GaussianMixture(n_components=2, random_state=0)
-                    gmm.fit(q.reshape(-1, 1))
-                    labels = gmm.predict(q.reshape(-1, 1))
-                    counts = np.bincount(labels)
-                    print(f'Component counts: {counts}')
-                    majority_label = np.argmax(counts)
-                    x_majority = x_filtered[labels == majority_label]
-                    print(f'Multimodal Data: selected majority component with {len(x_majority)} points out of {len(x_filtered)}')
+                    x_majority = x_filtered
+
+                print(f'Multimodal Data: selected majority component with {len(x_majority)} points out of {len(x_filtered)}')
                 # x_majority = x_filtered
                 # Check if there is variation across realizations (w) and filter out outliers based on z-score
                 th0 = x_majority[:,2]/N
@@ -107,7 +113,7 @@ if __name__ == "__main__":
                 results['counts'][ih,iT,ia] = x_final.shape[0]
     
     # Save results
-    names = ['N','N_samples','burnin','h','z_th','perc']
+    names = ['N','N_samples','burnin','z_th','perc','test_modes']
     params = make_params_dict(names)
     save_data(results,'results',experiment_name='mapping',params=params)
 
