@@ -13,9 +13,9 @@ mkdir -p ./logs
 echo $(pwd)
 # Define arrays of parameters
 
-alphas=(0.04)
-Ts=($(seq 0.05 0.05 1.60))
-
+alphas=($(seq 0.01 0.005 0.16))
+# Ts=($(seq 0.10 0.05 1.60))
+Ts=(0.3)
 # Timestamp for the launch
 echo "Launcher started at $(date)"
 echo "Submitting jobs for all combinations of N and T"
