@@ -14,26 +14,30 @@ echo $(pwd)
 # Define arrays of parameters
 
 alphas=($(seq 0.01 0.005 0.16))
+Ts=($(seq 0.10 0.05 1.60))
+
 
 # Timestamp for the launch
 echo "Launcher started at $(date)"
 echo "Submitting jobs for all combinations of N and T"
 
 # Loop over all combinations
-for alpha in "${alphas[@]}"; do
-    # Construct a unique job name and log files
-    JOB_NAME="a${alpha}"
-    OUT_LOG="./logs/job_${JOB_NAME}.out"
-    ERR_LOG="./logs/job_${JOB_NAME}.err"
+for T in "${Ts[@]}"; do
+    for alpha in "${alphas[@]}"; do
+        # Construct a unique job name and log files
+        JOB_NAME="a${alpha}"
+        OUT_LOG="./logs/job_${JOB_NAME}.out"
+        ERR_LOG="./logs/job_${JOB_NAME}.err"
 
-    echo "Submitting job for alpha=$alpha at $(date)"
-    sbatch --job-name="$JOB_NAME" \
-            --output="$OUT_LOG" \
-            --error="$ERR_LOG" \
-            ./shell/launch_job.sh "$alpha" 
+        echo "Submitting job for alpha=$alpha at $(date)"
+        sbatch --job-name="$JOB_NAME" \
+                --output="$OUT_LOG" \
+                --error="$ERR_LOG" \
+                ./shell/launch_job.sh "$alpha" "$T"
 
-    # Small delay to avoid overwhelming the scheduler
-    sleep 0.01
+        # Small delay to avoid overwhelming the scheduler
+        sleep 0.01
+    done
 done
 
 echo "All jobs submitted at $(date)"
