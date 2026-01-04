@@ -124,11 +124,11 @@ def load_data(file_name, experiment_name= '', params=None,show=True,ext='pkl',ba
     file_path, filename , dir_path = make_paths_general(base_dir,subfolder_names, file_name ,params_file ,ext=ext)
 
     if ext == 'txt':
-        data = np.loadtxt(filename)
+        data = np.loadtxt(file_path)
         message = 'loaded with np.loadtxt'
     
     elif ext == 'npy':
-        data = np.load(filename)
+        data = np.load(file_path)
         message = 'loaded with np.load'
 
     else:

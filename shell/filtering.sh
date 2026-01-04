@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#SBATCH --job-name=filtering
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
@@ -7,6 +8,9 @@
 #SBATCH --mem=5G
 #SBATCH --partition=regular1,regular2
 # SBATCH --qos=fastlane # for debugging
+#SBATCH --output=logs/job-%j.out
+#SBATCH --error=logs/job-%j.err
+
 
 mkdir -p ./logs
 
@@ -17,7 +21,7 @@ conda activate hop_bid
 echo $(pwd)
 
 z_th=2.0
-perc=80.0
+perc=85.0
 
 
 echo "Starting filtering with z_th=$z_th and perc=$perc at $(date)"

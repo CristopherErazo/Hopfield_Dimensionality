@@ -8,17 +8,15 @@ if __name__ == "__main__":
     # Define parameters of the system
     parser = argparse.ArgumentParser(description='Test the spin sampler.')
     parser.add_argument('--N', type=int, default=1024, help='Number of spins')
-    parser.add_argument('--N_samples', type=int, default=1500, help='Number of samples to draw')
-    parser.add_argument('--N_iterations', type=int, default=30, help='Number of iterations')
-    parser.add_argument('--burnin', type=int, default=1500, help='Number of burn-in steps')
+    parser.add_argument('--N_samples', type=int, default=2500, help='Number of samples to draw')
+    parser.add_argument('--N_iterations', type=int, default=40, help='Number of iterations')
+    parser.add_argument('--burnin', type=int, default=2000, help='Number of burn-in steps')
     parser.add_argument('--perc', type=float, default=80.0, help='Percentile for Dkl cut')
     parser.add_argument('--z_th', type=float, default=2.0, help='Z-score threshold for bid cut')
 
     args = parser.parse_args()
     print(args)
     N = args.N
-    T = args.T
-    alpha = args.alpha
     N_samples = args.N_samples
     N_iteration = args.N_iterations
     burnin = args.burnin
