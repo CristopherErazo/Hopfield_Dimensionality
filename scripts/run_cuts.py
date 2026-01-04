@@ -1,13 +1,32 @@
 import argparse, time
 from spin_sampler import Sampler , define_hopfield_model , initialize_spins
-from binary_dimension import compute_histogram_jax
+from binary_dimension import compute_histogram_jax , select_range
+from binary_dimension.utils import initial_gauss
+from binary_dimension.optimization import DKL_Optimizer
+from binary_dimension.distance_models import LinearDistanceModel 
+
 from configurations import make_params_dict, make_data_paths
 import jax
+import jax.numpy as jnp
 import os
 import multiprocessing
 
 
-if __name__ == "__main__":
+def order_params_jax(patterns, S):
+    '''
+    Compute the order parameters: magnetization and spin-glass parameter
+    '''
+    _, N = S.shape
+    N, _ = patterns.shape
+    av_s = jnp.mean(S, axis=0)
+    q = 1 / N * jnp.sum(av_s ** 2)
+    m = 1 / N * av_s @ patterns
+    m = jnp.sort(jnp.abs(m))[::-1]
+    return m, q
+
+
+
+def main():
     print(f'-------Starting job on host: {os.uname().nodename}-----')
     print("Backend:", jax.default_backend())
     print("Devices:", jax.devices())
@@ -49,9 +68,7 @@ if __name__ == "__main__":
     iteration = args.iteration
     seed += iteration  # Different seed for each iteration
 
-    # Parameters to save
-    names_fixed = ['N','N_samples','burnin','h']
-    names_variable = ['T','alpha','iteration']
+    
 
     t0 = time.time()
     # Define the couplings of Hopfield model and initialize spins
@@ -72,9 +89,37 @@ if __name__ == "__main__":
     print(f'Chain shape: {S.shape}') # (N_samples,N)
 
     params = make_params_dict(names_fixed,names_variable)
-    file_path , _ , _ = make_data_paths('spins', experiment_name= 'cut_in_parameters', params=params,base_dir='./data',ext=None)
-    jax.numpy.save(file_path, S)        
+    
+    # Compute hopfield order parameters
+    M, q = order_params_jax(patterns, S)
+    m = M[0]
+    print(f'Order parameters: m={m}, q={q}')
+    
+    # Compute Histogram of Hamming distances and dimensionality
+    r , P = compute_histogram_jax(S)
+    rx , Px = select_range(r,P,0,0.3)
+
+    theta_init = initial_gauss(r,P)
+    distance_model = LinearDistanceModel()
+    Dkl_optimizer = DKL_Optimizer(rx,Px, distance_model)
+    theta_opt , log_DKL , Nit = Dkl_optimizer.optimize(theta_init)
+
+    # Results and save
+    results = [m,q,*theta_opt,log_DKL,Nit]
+
+    # Parameters to save
+    names_fixed = ['N','N_samples','burnin','h']
+    names_variable = ['T','alpha']
+    params = make_params_dict(names_fixed,names_variable)
+    file_path , _ , _ = make_data_paths('results', experiment_name= 'cut_in_parameters', params=params,base_dir='./data',ext='txt')
+
+    with open(file_path,'a') as f:
+        f.write(' '.join(map(str,results))+'\n')
 
 
     dt = time.time() - t0
     print(f'------TIME TAKEN  = {dt/60 :.5} min = {dt/3600 :.3} hours-------')
+
+
+if __name__ == "__main__":
+    main()
