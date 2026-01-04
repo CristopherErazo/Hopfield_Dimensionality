@@ -226,9 +226,9 @@ def download_cluster_data(server_name,path_cluster,path_local,filename_cluster,f
     cluster = cluster.replace('\\','/')
 
     # Check if file exist locally
-    # if os.path.exists(local):
-    #     print(f'File already exist: {local}')
-    #     return
+    if os.path.exists(local):
+        print(f'File already exist: {local}')
+        return
 
     # Run scp command to copy from cluster
     result = subprocess.run(['scp', cluster, local], capture_output=True, text=True)
