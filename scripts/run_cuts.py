@@ -109,7 +109,7 @@ def main():
     names_fixed = ['N','N_samples','burnin','h']
     names_variable = ['T','alpha']
     params = make_params_dict(names_fixed,names_variable)
-    file_path , _ , _ = make_data_paths('results', experiment_name= 'cut_in_parameters', params=params,base_dir='./data',ext='txt')
+    file_path , _ , _ = make_data_paths('results', experiment_name= 'mapping', params=params,base_dir='./data',ext='txt')
 
     with open(file_path,'a') as f:
         f.write(' '.join(map(str,results))+'\n')

@@ -3,7 +3,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=40
-#SBATCH --time=01:00:00
+#SBATCH --time=05:00:00
 #SBATCH --mem=20G
 #SBATCH --partition=regular1,regular2
 # SBATCH --qos=fastlane # for debugging
@@ -36,12 +36,12 @@ alpha=$1
 
 # Define fixed parameters
 N=1024
-N_samples=1500
-burnin=1500
+N_samples=2500
+burnin=2000
 progress=False
 
 # Define variable parameters
-Nw=30
+Nw=40
 
 start_time=$(date +%s)
 echo "Starting job $SLURM_JOB_ID at $(date)"
