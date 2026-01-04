@@ -32,7 +32,6 @@ echo "  SLURM_JOB_CPUS_PER_NODE = $SLURM_JOB_CPUS_PER_NODE"
 
 # Define parsed parameters
 alpha=$1
-T=$2
 
 
 # Define fixed parameters
@@ -47,23 +46,26 @@ Nw=30
 start_time=$(date +%s)
 echo "Starting job $SLURM_JOB_ID at $(date)"
 
-for h in 0.0 0.9; do  
-    export N T alpha h N_samples burnin progress SLURM_JOB_ID
+Ts=($(seq 0.10 0.05 1.60))
 
-    # Define a single log file per job
-    log_file="./logs/job_alpha${alpha}_T${T}_h${h}.log"
+for T in "${Ts[@]}"; do
+    for h in 0.0 0.9; do  
+        export N T alpha h N_samples burnin progress SLURM_JOB_ID
 
-
-    seq 1 $Nw | parallel -j $JOBS '
-    echo "=== Running iteration {} for job $SLURM_JOB_ID ===" >> '"$log_file"'
-    python -u ./scripts/run_cuts.py --N $N --T $T --alpha $alpha --h $h \
-        --N_samples $N_samples --progress $progress \
-        --burnin $burnin --iteration {} \
-        >> '"$log_file"' 2>&1
-    '
+        # Define a single log file per job
+        log_file="./logs/job_alpha${alpha}_T${T}_h${h}.log"
 
 
-    end_time=$(date +%s)
-    elapsed=$(( end_time - start_time ))
-    echo "Total time: ${elapsed} seconds = $(( elapsed / 60 )) min"
+        seq 1 $Nw | parallel -j $JOBS '
+        echo "=== Running iteration {} for job $SLURM_JOB_ID ===" >> '"$log_file"'
+        python -u ./scripts/run_cuts.py --N $N --T $T --alpha $alpha --h $h \
+            --N_samples $N_samples --progress $progress \
+            --burnin $burnin --iteration {} \
+            >> '"$log_file"' 2>&1
+        '
+
+        end_time=$(date +%s)
+        elapsed=$(( end_time - start_time ))
+        echo "Total time: ${elapsed} seconds = $(( elapsed / 60 )) min"
+    done
 done

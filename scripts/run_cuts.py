@@ -88,8 +88,6 @@ def main():
     sampler.reset_chain() # Clean up the sampler
     print(f'Chain shape: {S.shape}') # (N_samples,N)
 
-    params = make_params_dict(names_fixed,names_variable)
-    
     # Compute hopfield order parameters
     M, q = order_params_jax(patterns, S)
     m = M[0]
