@@ -15,8 +15,21 @@ source ~/miniconda3/etc/profile.d/conda.sh
 conda activate hop_bid
 
 echo $(pwd)
+
+# Define parsed parameters
+N=$1
+T=$2
+
+# Compute idx = log2(N)
+idx=$(echo "l($N)/l(2)" | bc -l)
+# Compute C = 10 - 3*(idx - 12)
+C=$(echo "10 - 3*($idx - 12)" | bc -l) 
+# Convert C to an integer
+C=$(printf "%.0f" $C)
+
 # Set environment variables for JAX and threading
-JOBS=8
+# Set number of threads equal to C
+JOBS=$C
 THREADS_PER_JOB=$(( SLURM_CPUS_PER_TASK / JOBS ))
 export OMP_NUM_THREADS=$THREADS_PER_JOB
 
@@ -30,28 +43,26 @@ echo "  SLURM_CPUS_PER_TASK = $SLURM_CPUS_PER_TASK"
 echo "  SLURM_NTASKS = $SLURM_NTASKS"
 echo "  SLURM_JOB_CPUS_PER_NODE = $SLURM_JOB_CPUS_PER_NODE"
 
-# Define parsed parameters
-alpha=$1
-T=$2
+
 
 # Define fixed parameters
-N=1024
+alpha=0.04
 N_samples=2500
 burnin=1500
 progress=False
 
 # Define variable parameters
-Nw=60
+Nw=20
 
 start_time=$(date +%s)
 echo "Starting job $SLURM_JOB_ID at $(date)"
 
 
-for h in 0.0 0.9; do  
+for h in 0.0; do  
     export N T alpha h N_samples burnin progress SLURM_JOB_ID
 
     # Define a single log file per job
-    log_file="./logs/job_alpha${alpha}_T${T}_h${h}.log"
+    log_file="./logs/job_N${N}_T${T}.log"
 
 
     seq 1 $Nw | parallel -j $JOBS '

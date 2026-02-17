@@ -23,6 +23,7 @@ def order_params_jax(patterns, S):
     q = 1 / N * jnp.sum(av_s ** 2)
     m = 1 / N * av_s @ patterns
     m = jnp.sort(jnp.abs(m))[::-1]
+
     return m, q
 
 def fixed_point_flags(r,P,threshold=0.75): 
@@ -73,8 +74,8 @@ def main():
     progress = args.progress == 'True'
     seed = int(time.time())
     rnd_ord = True
-    iteration = args.iteration
-    seed += iteration  # Different seed for each iteration
+    it = args.iteration
+    seed += it # Different seed for each iteration
 
     
 
@@ -104,6 +105,15 @@ def main():
     # Compute Histogram of Hamming distances and dimensionality
     r , P = compute_histogram_jax(S)
 
+    mean_r = jnp.sum(r*P)
+    mean_r2 = jnp.sum(r**2*P)
+    var_r = mean_r2 - mean_r**2
+    
+    # x = 1-2r/N
+
+    mean_x = 1-2*mean_r/N
+    var_x = 4*var_r/N**2
+
     is_fixed_point , fit_possible = fixed_point_flags(r,P)
  
     if is_fixed_point: #Potential fixed point
@@ -126,16 +136,24 @@ def main():
         theta_opt , log_DKL , Nit = Dkl_optimizer.optimize(theta_init)
 
     # Results and save
-    results = [m,q,*theta_opt,log_DKL,Nit]
+    results = [m,q,*theta_opt,log_DKL,Nit,mean_x,var_x]
 
     # Parameters to save
-    names_fixed = ['N','N_samples','burnin','h']
-    names_variable = ['T','alpha']
+    names_fixed = ['N_samples','burnin','h','alpha']
+    names_variable = ['N','T']
     params = make_params_dict(names_fixed,names_variable)
-    file_path , _ , _ = make_data_paths('results', experiment_name= 'mapping', params=params,base_dir='./data',ext='txt')
+    file_path , filename , dir_path = make_data_paths('summary', experiment_name= 'fss', params=params,base_dir='./data',ext='txt')
 
     with open(file_path,'a') as f:
         f.write(' '.join(map(str,results))+'\n')
+
+    names_fixed = ['N_samples','burnin','h','alpha']
+    names_variable = ['N','T','it']
+    params = make_params_dict(names_fixed,names_variable)
+    file_path , filename , dir_path = make_data_paths('configurations', experiment_name= 'fss_matrices', params=params,base_dir='./data',ext='txt')
+
+    # Save the Spin configurations and patterns
+    jnp.savez(file_path, S=S, patterns=patterns)
 
 
     dt = time.time() - t0
