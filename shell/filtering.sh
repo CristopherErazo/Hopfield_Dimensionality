@@ -21,9 +21,9 @@ conda activate hop_bid
 echo $(pwd)
 
 z_th=1.5
-perc=85.0
-
+perc=80.0
+test_modes=False
 
 echo "Starting filtering with z_th=$z_th and perc=$perc at $(date)"
-python -u ./scripts/analyze_cuts.py --z_th $z_th --perc $perc --burnin 1500 --N_iterations 60
+python -u ./scripts/analyze_cuts.py --z_th $z_th --perc $perc --burnin 1500 --N_iterations 60 --test_modes $test_modes
 echo "Filtering completed at $(date)"
