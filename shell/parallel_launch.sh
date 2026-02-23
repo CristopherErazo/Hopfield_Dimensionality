@@ -13,11 +13,12 @@ mkdir -p ./logs
 echo $(pwd)
 # Define arrays of parameters
 
-# Ns=(4096 8192 16384 32768)
-# Ts=($(seq 0.80 0.02 1.60))
+# Ns=(32768 32768 32768 32768)  #(4096 8192 16384 32768)
+# Ts=($(seq 1.0 0.02 1.40))
 
-Ns=(1024)
-Ts=(1.2)
+Ns=(4096)
+Ts=(1.04)
+
 
 # Timestamp for the launch
 echo "Launcher started at $(date)"

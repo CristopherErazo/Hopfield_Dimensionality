@@ -153,7 +153,7 @@ def main():
     file_path , filename , dir_path = make_data_paths('configurations', experiment_name= 'fss_matrices', params=params,base_dir='./data',ext='txt')
 
     # Save the Spin configurations and patterns
-    jnp.savez(file_path, S=S, patterns=patterns)
+    # jnp.savez(file_path, S=S, patterns=patterns)
 
 
     dt = time.time() - t0

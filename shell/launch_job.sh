@@ -3,8 +3,8 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=40
-#SBATCH --time=00:30:00
-#SBATCH --mem=10G
+#SBATCH --time=12:00:00
+#SBATCH --mem=30G
 #SBATCH --partition=regular1,regular2
 # SBATCH --qos=fastlane # for debugging
 
@@ -19,6 +19,8 @@ echo $(pwd)
 # Define parsed parameters
 N=$1
 T=$2
+# Nw=$3
+Nw=20
 
 # Compute idx = log2(N)
 idx=$(echo "l($N)/l(2)" | bc -l)
@@ -29,7 +31,7 @@ C=$(printf "%.0f" $C)
 
 # Set environment variables for JAX and threading
 # Set number of threads equal to C
-JOBS=$C
+JOBS=5 #$C
 THREADS_PER_JOB=$(( SLURM_CPUS_PER_TASK / JOBS ))
 export OMP_NUM_THREADS=$THREADS_PER_JOB
 
@@ -47,12 +49,12 @@ echo "  SLURM_JOB_CPUS_PER_NODE = $SLURM_JOB_CPUS_PER_NODE"
 
 # Define fixed parameters
 alpha=0.04
-N_samples=2500
+N_samples=10000
 burnin=1500
 progress=False
 
 # Define variable parameters
-Nw=20
+# Nw=
 
 start_time=$(date +%s)
 echo "Starting job $SLURM_JOB_ID at $(date)"
