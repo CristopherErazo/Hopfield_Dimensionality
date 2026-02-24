@@ -129,7 +129,7 @@ def main():
             Nit = 1
     else: #Not a fixed point, perform cut and fit only on the left region
 
-        rx , Px = select_range(r,P,0,0.3)
+        rx , Px = select_range(r,P,0.01,0.3)
         theta_init = initial_gauss(r,P)
         distance_model = LinearDistanceModel()
         Dkl_optimizer = DKL_Optimizer(rx,Px, distance_model)
@@ -147,10 +147,18 @@ def main():
     with open(file_path,'a') as f:
         f.write(' '.join(map(str,results))+'\n')
 
-    names_fixed = ['N_samples','burnin','h','alpha']
-    names_variable = ['N','T','it']
-    params = make_params_dict(names_fixed,names_variable)
-    file_path , filename , dir_path = make_data_paths('configurations', experiment_name= 'fss_matrices', params=params,base_dir='./data',ext='txt')
+    file_path , _ , _ = make_data_paths('histograms', experiment_name= 'fss_hist', params=params,base_dir='./data',ext='txt')
+        
+
+    file = open(file_path,'a')
+    file.write(' '.join(map(str,r))+'\n')
+    file.write(' '.join(map(str,P))+'\n')
+    file.close()
+
+    # names_fixed = ['N_samples','burnin','h','alpha']
+    # names_variable = ['N','T','it']
+    # params = make_params_dict(names_fixed,names_variable)
+    # file_path , filename , dir_path = make_data_paths('configurations', experiment_name= 'fss_matrices', params=params,base_dir='./data',ext='txt')
 
     # Save the Spin configurations and patterns
     # jnp.savez(file_path, S=S, patterns=patterns)
