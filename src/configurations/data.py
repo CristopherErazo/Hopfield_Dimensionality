@@ -121,7 +121,9 @@ def load_data(file_name, experiment_name= '', params=None,show=True,ext='pkl',ba
         params_file = params['variable']
 
     file_path, filename , dir_path = make_paths_general(base_dir,subfolder_names, file_name ,params_file ,ext=ext,normalize=normalize)
-
+    
+    if show : print(f'Attempting to load file: {file_path}')
+    
     if ext == 'txt':
         data = np.loadtxt(filename)
         message = 'loaded with np.loadtxt'
